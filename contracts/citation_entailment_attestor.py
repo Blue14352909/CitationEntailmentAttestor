@@ -222,22 +222,26 @@ def _validate_source_fields(parsed: dict) -> str | None:
 
 
 def _is_source_stale(parsed: dict, max_age_days: int) -> bool:
-    """Check if source is older than max_age_days. Returns True if stale."""
+    """Check if source is older than max_age_days. Returns True if stale.
+
+    Fail-closed: if the age cannot be validly established, treat as stale.
+    A source whose age is unknown cannot prove freshness and must not
+    contribute to SUPPORTED or CONTRADICTED.
+    """
     days_raw = parsed.get("days_since_publication")
     if days_raw is None:
-        return False  # Cannot determine age, do not reject stale
+        return True  # Age unknown -> cannot prove freshness -> stale
     if isinstance(days_raw, bool):
-        return False
-    if isinstance(days_raw, float) and days_raw != int(days_raw):
-        return False
-    try:
-        days_since = int(days_raw)
-    except (ValueError, TypeError):
-        return False
-    # -1 means unknown date — do not reject
-    if days_since < 0:
-        return False
-    return days_since >= max_age_days
+        return True  # Boolean is not a valid age -> stale
+    if isinstance(days_raw, str):
+        return True  # String is not a valid numeric age -> stale
+    if isinstance(days_raw, float):
+        return True  # Fractional is not a valid integer age -> stale
+    if not isinstance(days_raw, int):
+        return True  # Non-numeric type -> stale
+    if days_raw < 0:
+        return True  # Negative -> age unknown -> stale
+    return days_raw >= max_age_days
 
 
 def _deterministic_overall_verdict(source_results: list) -> dict:

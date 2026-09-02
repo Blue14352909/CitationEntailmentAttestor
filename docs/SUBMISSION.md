@@ -27,7 +27,7 @@ CitationEntailmentAttestor makes "show your sources" enforceable on-chain. Given
 - **Successful attestation result:** [placeholder]
 
 ## Test Results
-- 41 direct VM tests
+- 46 direct VM tests
 - GenVM lint: clean
 - CI: Ubuntu/Python 3.12, pinned dependencies
 

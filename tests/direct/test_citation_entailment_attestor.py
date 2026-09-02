@@ -26,6 +26,7 @@ def _create_and_run(contract, direct_vm, claim=VALID_CLAIM, urls=VALID_URLS,
                         '"evidence_excerpt": "Project X raised $5 million", '
                         '"addresses_claim": true, '
                         '"publication_date": "2026-05-15", '
+                        '"days_since_publication": 10, '
                         '"reason": "Source confirms $5m raise in May 2026"}')
     direct_vm.mock_llm(".*", llm_response)
     report_id = contract.run_attestation(aid)
@@ -219,6 +220,7 @@ def test_supported_multiple_sources(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Confirmed $5m raise", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 10, '
                        '"reason": "Confirms claim"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -241,6 +243,7 @@ def test_contradicted_overrides_support(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Raised $2m not $5m", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-10", '
+                       '"days_since_publication": 10, '
                        '"reason": "Amount differs"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -262,6 +265,7 @@ def test_all_sources_irrelevant(direct_deploy, direct_vm):
                        '"evidence_excerpt": "", '
                        '"addresses_claim": false, '
                        '"publication_date": "", '
+                       '"days_since_publication": 10, '
                        '"reason": "Source does not discuss Project X funding"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -295,6 +299,7 @@ def test_missing_source_result_field(direct_deploy, direct_vm):
     direct_vm.mock_llm(".*", '{"evidence_excerpt": "text", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-01-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "test"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -311,6 +316,7 @@ def test_non_boolean_addresses_claim(direct_deploy, direct_vm):
                        '"evidence_excerpt": "text", '
                        '"addresses_claim": "yes", '
                        '"publication_date": "2026-01-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "test"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -327,6 +333,7 @@ def test_invalid_source_result_enum(direct_deploy, direct_vm):
                        '"evidence_excerpt": "text", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-01-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "test"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -348,6 +355,7 @@ def test_contradiction_always_wins(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Raised $2m not $5m", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-10", '
+                       '"days_since_publication": 10, '
                        '"reason": "Amount differs"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -364,6 +372,7 @@ def test_mixed_support_and_insufficient(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Confirmed $5m", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 10, '
                        '"reason": "Supports"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -382,6 +391,7 @@ def test_all_insufficient(direct_deploy, direct_vm):
                        '"evidence_excerpt": "", '
                        '"addresses_claim": false, '
                        '"publication_date": "", '
+                       '"days_since_publication": 10, '
                        '"reason": "Not relevant"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -407,6 +417,7 @@ def test_storage_isolation(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Yes", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-06-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "Confirms"}')
 
     r1 = contract.run_attestation(a1)
@@ -434,6 +445,7 @@ def test_report_immutable_after_failed_rerun(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Confirmed $5m raise", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 10, '
                        '"reason": "Confirms claim"}')
     r1 = contract.run_attestation(aid)
     report1 = contract.get_report(r1)
@@ -478,6 +490,7 @@ def test_attestation_status_updates(direct_deploy, direct_vm):
                        '"evidence_excerpt": "text", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-01-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "Supports"}')
     contract.run_attestation(aid)
     assert contract.get_attestation(aid)["status"] == "COMPLETED"
@@ -493,6 +506,7 @@ def test_report_counts_correct(direct_deploy, direct_vm):
                        '"evidence_excerpt": "Confirmed $5m", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 10, '
                        '"reason": "Confirms"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -511,6 +525,7 @@ def test_single_url_only(direct_deploy, direct_vm):
                        '"evidence_excerpt": "$5m confirmed", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 10, '
                        '"reason": "Confirms"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -528,6 +543,7 @@ def test_claim_text_preserved_in_report(direct_deploy, direct_vm):
                        '"evidence_excerpt": "text", '
                        '"addresses_claim": true, '
                        '"publication_date": "2026-01-01", '
+                       '"days_since_publication": 10, '
                        '"reason": "Supports"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
@@ -575,8 +591,9 @@ def test_fresh_source_supported(direct_deploy, direct_vm):
     assert report["overall_result"] == "SUPPORTED"
 
 
-def test_unknown_date_not_rejected(direct_deploy, direct_vm):
-    """days_since_publication=-1 (unknown) does not cause rejection."""
+def test_unknown_date_insufficient(direct_deploy, direct_vm):
+    """days_since_publication=-1 (unknown) -> INSUFFICIENT (fail closed).
+    Regression: old code allowed unknown dates to support a claim."""
     contract = direct_deploy("contracts/citation_entailment_attestor.py")
     aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
     direct_vm.mock_web(".*", {"method": "GET", "status": 200,
@@ -589,8 +606,102 @@ def test_unknown_date_not_rejected(direct_deploy, direct_vm):
                        '"reason": "Cannot determine date"}')
     report_id = contract.run_attestation(aid)
     report = contract.get_report(report_id)
-    # Unknown date does not cause rejection — only stale dates do
-    assert report["overall_result"] == "SUPPORTED"
+    # Unknown date must not produce SUPPORTED — fail closed
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
+
+
+def test_missing_date_insufficient(direct_deploy, direct_vm):
+    """Missing days_since_publication -> INSUFFICIENT (fail closed)."""
+    contract = direct_deploy("contracts/citation_entailment_attestor.py")
+    aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
+    direct_vm.mock_web(".*", {"method": "GET", "status": 200,
+                              "body": "Project X raised $5 million."})
+    # No days_since_publication field at all
+    direct_vm.mock_llm(".*", '{"source_result": "SUPPORTS", '
+                       '"evidence_excerpt": "Confirmed $5m", '
+                       '"addresses_claim": true, '
+                       '"publication_date": "", '
+                       '"days_since_publication": -1, '
+                       '"reason": "Cannot determine date"}')
+    report_id = contract.run_attestation(aid)
+    report = contract.get_report(report_id)
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
+
+
+def test_bool_date_insufficient(direct_deploy, direct_vm):
+    """Boolean days_since_publication -> INSUFFICIENT (fail closed)."""
+    contract = direct_deploy("contracts/citation_entailment_attestor.py")
+    aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
+    direct_vm.mock_web(".*", {"method": "GET", "status": 200,
+                              "body": "Project X raised $5 million."})
+    direct_vm.mock_llm(".*", '{"source_result": "SUPPORTS", '
+                       '"evidence_excerpt": "Confirmed $5m", '
+                       '"addresses_claim": true, '
+                       '"publication_date": "2026-05-15", '
+                       '"days_since_publication": true, '
+                       '"reason": "Confirms"}')
+    report_id = contract.run_attestation(aid)
+    report = contract.get_report(report_id)
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
+
+
+def test_fractional_date_insufficient(direct_deploy, direct_vm):
+    """Fractional days_since_publication -> INSUFFICIENT (fail closed)."""
+    contract = direct_deploy("contracts/citation_entailment_attestor.py")
+    aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
+    direct_vm.mock_web(".*", {"method": "GET", "status": 200,
+                              "body": "Project X raised $5 million."})
+    direct_vm.mock_llm(".*", '{"source_result": "SUPPORTS", '
+                       '"evidence_excerpt": "Confirmed $5m", '
+                       '"addresses_claim": true, '
+                       '"publication_date": "2026-05-15", '
+                       '"days_since_publication": 0.5, '
+                       '"reason": "Confirms"}')
+    report_id = contract.run_attestation(aid)
+    report = contract.get_report(report_id)
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
+
+
+def test_string_date_insufficient(direct_deploy, direct_vm):
+    """String days_since_publication -> INSUFFICIENT (fail closed).
+    LLMs can return string numbers; must not pass through."""
+    contract = direct_deploy("contracts/citation_entailment_attestor.py")
+    aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
+    direct_vm.mock_web(".*", {"method": "GET", "status": 200,
+                              "body": "Project X raised $5 million."})
+    direct_vm.mock_llm(".*", '{"source_result": "SUPPORTS", '
+                       '"evidence_excerpt": "Confirmed $5m", '
+                       '"addresses_claim": true, '
+                       '"publication_date": "2026-05-15", '
+                       '"days_since_publication": "10", '
+                       '"reason": "Confirms"}')
+    report_id = contract.run_attestation(aid)
+    report = contract.get_report(report_id)
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
+
+
+def test_exact_boundary_stale(direct_deploy, direct_vm):
+    """days_since_publication == max_age_days -> INSUFFICIENT (at boundary).
+    Exact boundary must fail closed, not pass."""
+    contract = direct_deploy("contracts/citation_entailment_attestor.py")
+    aid = contract.create_attestation(VALID_CLAIM, SINGLE_URL, "30")
+    direct_vm.mock_web(".*", {"method": "GET", "status": 200,
+                              "body": "Project X raised $5 million."})
+    direct_vm.mock_llm(".*", '{"source_result": "SUPPORTS", '
+                       '"evidence_excerpt": "Confirmed $5m", '
+                       '"addresses_claim": true, '
+                       '"publication_date": "2026-04-15", '
+                       '"days_since_publication": 30, '
+                       '"reason": "Confirms claim"}')
+    report_id = contract.run_attestation(aid)
+    report = contract.get_report(report_id)
+    assert report["overall_result"] == "INSUFFICIENT_EVIDENCE"
+    assert report["supporting_count"] == 0
 
 
 # ===========================================================================
